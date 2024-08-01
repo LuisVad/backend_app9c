@@ -9,14 +9,14 @@ table = dynamodb.Table(os.environ['TABLE_NAME'])
 def lambda_handler(event, context):
     id = event['pathParameters']['id']
     body = json.loads(event['body'])
-    update_expression = "SET marca = :marca, modelo = :modelo, autonomia = :autonomia, velocidadMaxima = :velocidadMaxima, dueño = :dueño, caballosDeFuerza = :caballosDeFuerza"
+    update_expression = "SET marca = :marca, modelo = :modelo, autonomia = :autonomia, velocidadMaxima = :velocidadMaxima, dueno = :dueno, caballosDeFuerza = :caballosDeFuerza"
     expression_values = {
         ':marca': body['marca'],
         ':modelo': body['modelo'],
         ':autonomia': body['autonomia'],
         ':velocidadMaxima': body['velocidadMaxima'],
-        ':dueño': body['dueño'],  # Agregado
-        ':caballosDeFuerza': body['caballosDeFuerza']  # Agregado
+        ':dueno': body['dueño'],  # Cambiado a 'dueno'
+        ':caballosDeFuerza': body['caballosDeFuerza']
     }
 
     try:
@@ -32,5 +32,5 @@ def lambda_handler(event, context):
     except ClientError as e:
         return {
             'statusCode': 500,
-            'body': json.dumps({'error': str(e)})
+            'body': json.dumps({'error': 'Error updating item', 'details': str(e)})
         }

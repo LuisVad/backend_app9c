@@ -29,12 +29,19 @@ Resources:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
 
+  Api:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: vehiculos-api
+      StageName: Prod
+      TracingEnabled: true
+
   CreateVehiculoFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: create_vehiculo/
       Handler: app.lambda_handler
-      Runtime: python3.11
+      Runtime: python3.12
       Architectures:
         - x86_64
       Environment:
@@ -46,13 +53,17 @@ Resources:
           Properties:
             Path: /vehiculos
             Method: POST
+            RestApiId: !Ref Api
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref VehiculosTable
 
   GetVehiculosFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: get_vehiculos/
       Handler: app.lambda_handler
-      Runtime: python3.11
+      Runtime: python3.12
       Architectures:
         - x86_64
       Environment:
@@ -64,13 +75,17 @@ Resources:
           Properties:
             Path: /vehiculos
             Method: GET
+            RestApiId: !Ref Api
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref VehiculosTable
 
   UpdateVehiculoFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: update_vehiculo/
       Handler: app.lambda_handler
-      Runtime: python3.11
+      Runtime: python3.12
       Architectures:
         - x86_64
       Environment:
@@ -82,13 +97,17 @@ Resources:
           Properties:
             Path: /vehiculos/{id}
             Method: PUT
+            RestApiId: !Ref Api
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref VehiculosTable
 
   DeleteVehiculoFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: delete_vehiculo/
       Handler: app.lambda_handler
-      Runtime: python3.11
+      Runtime: python3.12
       Architectures:
         - x86_64
       Environment:
@@ -100,6 +119,10 @@ Resources:
           Properties:
             Path: /vehiculos/{id}
             Method: DELETE
+            RestApiId: !Ref Api
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref VehiculosTable
 
   ApplicationResourceGroup:
     Type: AWS::ResourceGroups::Group
@@ -119,16 +142,16 @@ Resources:
 Outputs:
   CreateVehiculoApi:
     Description: API Gateway endpoint URL for Create Vehiculo function
-    Value: !Sub "https://${CreateApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/vehiculos"
+    Value: !Sub "https://${Api}.execute-api.${AWS::Region}.amazonaws.com/Prod/vehiculos"
   GetVehiculosApi:
     Description: API Gateway endpoint URL for Get Vehiculos function
-    Value: !Sub "https://${GetApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/vehiculos"
+    Value: !Sub "https://${Api}.execute-api.${AWS::Region}.amazonaws.com/Prod/vehiculos"
   UpdateVehiculoApi:
     Description: API Gateway endpoint URL for Update Vehiculo function
-    Value: !Sub "https://${UpdateApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/vehiculos/{id}"
+    Value: !Sub "https://${Api}.execute-api.${AWS::Region}.amazonaws.com/Prod/vehiculos/{id}"
   DeleteVehiculoApi:
     Description: API Gateway endpoint URL for Delete Vehiculo function
-    Value: !Sub "https://${DeleteApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/vehiculos/{id}"
+    Value: !Sub "https://${Api}.execute-api.${AWS::Region}.amazonaws.com/Prod/vehiculos/{id}"
   CreateVehiculoFunction:
     Description: Create Vehiculo Lambda Function ARN
     Value: !GetAtt CreateVehiculoFunction.Arn

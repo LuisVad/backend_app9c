@@ -2,6 +2,7 @@ import json
 import os
 import boto3
 from botocore.exceptions import ClientError
+from datetime import datetime
 
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table(os.environ['TABLE_NAME'])
@@ -13,7 +14,9 @@ def lambda_handler(event, context):
         'marca': body['marca'],
         'modelo': body['modelo'],
         'autonomia': body['autonomia'],
-        'velocidadMaxima': body['velocidadMaxima']
+        'velocidadMaxima': body['velocidadMaxima'],
+        'dueño': body['dueño'],  # Agregado
+        'caballosDeFuerza': body['caballosDeFuerza']  # Agregado
     }
 
     try:

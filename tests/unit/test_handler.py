@@ -5,15 +5,15 @@ from create_vehiculo import app as create_vehiculo_app
 
 @pytest.fixture()
 def apigw_event():
-    """ Generates API GW Event with multiple test records for create_vehiculo"""
+    """Generates API GW Event with multiple test records for create_vehiculo"""
     return {
         "body": json.dumps([
-            {"id": "1", "marca": "Toyota", "modelo": "Corolla", "autonomia": 500, "velocidadMaxima": 180},
-            {"id": "2", "marca": "Honda", "modelo": "Civic", "autonomia": 600, "velocidadMaxima": 200},
-            {"id": "3", "marca": "Ford", "modelo": "Focus", "autonomia": 450, "velocidadMaxima": 170},
-            {"id": "4", "marca": "Chevrolet", "modelo": "Cruze", "autonomia": 550, "velocidadMaxima": 190},
-            {"id": "5", "marca": "Hyundai", "modelo": "Elantra", "autonomia": 580, "velocidadMaxima": 210},
-            {"id": "6", "marca": "Mazda", "modelo": "3", "autonomia": 500, "velocidadMaxima": 180}
+            {"id": "1", "marca": "Toyota", "modelo": "Corolla", "autonomia": 500, "velocidadMaxima": 180, "dueño": "Alice", "caballosDeFuerza": 150},
+            {"id": "2", "marca": "Honda", "modelo": "Civic", "autonomia": 600, "velocidadMaxima": 200, "dueño": "Bob", "caballosDeFuerza": 140},
+            {"id": "3", "marca": "Ford", "modelo": "Focus", "autonomia": 450, "velocidadMaxima": 170, "dueño": "Charlie", "caballosDeFuerza": 160},
+            {"id": "4", "marca": "Chevrolet", "modelo": "Cruze", "autonomia": 550, "velocidadMaxima": 190, "dueño": "David", "caballosDeFuerza": 155},
+            {"id": "5", "marca": "Hyundai", "modelo": "Elantra", "autonomia": 580, "velocidadMaxima": 210, "dueño": "Eve", "caballosDeFuerza": 170},
+            {"id": "6", "marca": "Mazda", "modelo": "3", "autonomia": 500, "velocidadMaxima": 180, "dueño": "Frank", "caballosDeFuerza": 145}
         ]),
         "resource": "/{proxy+}",
         "requestContext": {
@@ -77,12 +77,12 @@ def test_create_vehiculo_handler(apigw_event, mocker):
     # Modifica el apigw_event para el caso de prueba de create_vehiculo
     create_vehiculo_event = apigw_event.copy()
     create_vehiculo_event["body"] = json.dumps([
-        {"id": "1", "marca": "Toyota", "modelo": "Corolla", "autonomia": 500, "velocidadMaxima": 180},
-        {"id": "2", "marca": "Honda", "modelo": "Civic", "autonomia": 600, "velocidadMaxima": 200},
-        {"id": "3", "marca": "Ford", "modelo": "Focus", "autonomia": 450, "velocidadMaxima": 170},
-        {"id": "4", "marca": "Chevrolet", "modelo": "Cruze", "autonomia": 550, "velocidadMaxima": 190},
-        {"id": "5", "marca": "Hyundai", "modelo": "Elantra", "autonomia": 580, "velocidadMaxima": 210},
-        {"id": "6", "marca": "Mazda", "modelo": "3", "autonomia": 500, "velocidadMaxima": 180}
+        {"id": "1", "marca": "Toyota", "modelo": "Corolla", "autonomia": 500, "velocidadMaxima": 180, "dueño": "Alice", "caballosDeFuerza": 150},
+        {"id": "2", "marca": "Honda", "modelo": "Civic", "autonomia": 600, "velocidadMaxima": 200, "dueño": "Bob", "caballosDeFuerza": 140},
+        {"id": "3", "marca": "Ford", "modelo": "Focus", "autonomia": 450, "velocidadMaxima": 170, "dueño": "Charlie", "caballosDeFuerza": 160},
+        {"id": "4", "marca": "Chevrolet", "modelo": "Cruze", "autonomia": 550, "velocidadMaxima": 190, "dueño": "David", "caballosDeFuerza": 155},
+        {"id": "5", "marca": "Hyundai", "modelo": "Elantra", "autonomia": 580, "velocidadMaxima": 210, "dueño": "Eve", "caballosDeFuerza": 170},
+        {"id": "6", "marca": "Mazda", "modelo": "3", "autonomia": 500, "velocidadMaxima": 180, "dueño": "Frank", "caballosDeFuerza": 145}
     ])
 
     ret = create_vehiculo_app.lambda_handler(create_vehiculo_event, "")
@@ -97,3 +97,5 @@ def test_create_vehiculo_handler(apigw_event, mocker):
         assert "modelo" in item
         assert "autonomia" in item
         assert "velocidadMaxima" in item
+        assert "dueño" in item
+        assert "caballosDeFuerza" in item

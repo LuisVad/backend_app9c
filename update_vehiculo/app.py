@@ -9,12 +9,14 @@ table = dynamodb.Table(os.environ['TABLE_NAME'])
 def lambda_handler(event, context):
     id = event['pathParameters']['id']
     body = json.loads(event['body'])
-    update_expression = "SET marca = :marca, modelo = :modelo, autonomia = :autonomia, velocidadMaxima = :velocidadMaxima"
+    update_expression = "SET marca = :marca, modelo = :modelo, autonomia = :autonomia, velocidadMaxima = :velocidadMaxima, dueño = :dueño, caballosDeFuerza = :caballosDeFuerza"
     expression_values = {
         ':marca': body['marca'],
         ':modelo': body['modelo'],
         ':autonomia': body['autonomia'],
-        ':velocidadMaxima': body['velocidadMaxima']
+        ':velocidadMaxima': body['velocidadMaxima'],
+        ':dueño': body['dueño'],  # Agregado
+        ':caballosDeFuerza': body['caballosDeFuerza']  # Agregado
     }
 
     try:

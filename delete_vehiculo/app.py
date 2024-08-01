@@ -9,6 +9,7 @@ table = dynamodb.Table(os.environ['TABLE_NAME'])
 def lambda_handler(event, context):
     id = event['pathParameters']['id']
     try:
+        # Opción: en lugar de eliminar, podrías actualizar el estado a 'inactivo'
         table.delete_item(Key={'id': id})
         return {
             'statusCode': 200,

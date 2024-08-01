@@ -1,30 +1,36 @@
 import json
 import os
 import boto3
-from decimal import Decimal
+from botocore.exceptions import ClientError
 
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table(os.environ['TABLE_NAME'])
 
-def decimal_to_float(d):
-    if isinstance(d, Decimal):
-        return float(d)
-    raise TypeError("Type not serializable")
-
 def lambda_handler(event, context):
-    try:
-        response = table.scan()
-        items = response['Items']
-        
-        # Convert Decimal to float
-        items_serializable = [{k: decimal_to_float(v) if isinstance(v, Decimal) else v for k, v in item.items()} for item in items]
+    id = event['pathParameters']['id']
+    body = json.loads(event['body'])
+    update_expression = "SET marca = :marca, modelo = :modelo, autonomia = :autonomia, velocidadMaxima = :velocidadMaxima, dueno = :dueno, caballosDeFuerza = :caballosDeFuerza"
+    expression_values = {
+        ':marca': body['marca'],
+        ':modelo': body['modelo'],
+        ':autonomia': body['autonomia'],
+        ':velocidadMaxima': body['velocidadMaxima'],
+        ':dueno': body['dueño'],  # Cambiado a 'dueno'
+        ':caballosDeFuerza': body['caballosDeFuerza']
+    }
 
+    try:
+        table.update_item(
+            Key={'id': id},
+            UpdateExpression=update_expression,
+            ExpressionAttributeValues=expression_values
+        )
         return {
             'statusCode': 200,
-            'body': json.dumps(items_serializable)
+            'body': json.dumps({'message': 'Vehículo actualizado exitosamente'})
         }
-    except Exception as e:
+    except ClientError as e:
         return {
             'statusCode': 500,
-            'body': json.dumps({'error': 'Internal server error', 'details': str(e)})
+            'body': json.dumps({'error': 'Error updating item', 'details': str(e)})
         }

@@ -1,0 +1,143 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  vehiculos-api-lebc-9c
+
+  Sample SAM Template for vehiculos-api-lebc-9c
+
+Globals:
+  Function:
+    Timeout: 10
+    Tracing: Active
+    LoggingConfig:
+      LogFormat: JSON
+  Api:
+    TracingEnabled: true
+
+Resources:
+  VehiculosTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: 'VehiculosTable'
+      AttributeDefinitions:
+        - AttributeName: 'id'
+          AttributeType: 'S'
+      KeySchema:
+        - AttributeName: 'id'
+          KeyType: 'HASH'
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
+  CreateVehiculoFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: create_vehiculo/
+      Handler: app.lambda_handler
+      Runtime: python3.11
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref VehiculosTable
+      Events:
+        CreateApi:
+          Type: Api
+          Properties:
+            Path: /vehiculos
+            Method: POST
+
+  GetVehiculosFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: get_vehiculos/
+      Handler: app.lambda_handler
+      Runtime: python3.11
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref VehiculosTable
+      Events:
+        GetApi:
+          Type: Api
+          Properties:
+            Path: /vehiculos
+            Method: GET
+
+  UpdateVehiculoFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: update_vehiculo/
+      Handler: app.lambda_handler
+      Runtime: python3.11
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref VehiculosTable
+      Events:
+        UpdateApi:
+          Type: Api
+          Properties:
+            Path: /vehiculos/{id}
+            Method: PUT
+
+  DeleteVehiculoFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: delete_vehiculo/
+      Handler: app.lambda_handler
+      Runtime: python3.11
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref VehiculosTable
+      Events:
+        DeleteApi:
+          Type: Api
+          Properties:
+            Path: /vehiculos/{id}
+            Method: DELETE
+
+  ApplicationResourceGroup:
+    Type: AWS::ResourceGroups::Group
+    Properties:
+      Name:
+        Fn::Sub: ApplicationInsights-SAM-${AWS::StackName}
+      ResourceQuery:
+        Type: CLOUDFORMATION_STACK_1_0
+
+  ApplicationInsightsMonitoring:
+    Type: AWS::ApplicationInsights::Application
+    Properties:
+      ResourceGroupName:
+        Ref: ApplicationResourceGroup
+      AutoConfigurationEnabled: 'true'
+
+Outputs:
+  CreateVehiculoApi:
+    Description: API Gateway endpoint URL for Create Vehiculo function
+    Value: !Sub "https://${CreateApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/vehiculos"
+  GetVehiculosApi:
+    Description: API Gateway endpoint URL for Get Vehiculos function
+    Value: !Sub "https://${GetApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/vehiculos"
+  UpdateVehiculoApi:
+    Description: API Gateway endpoint URL for Update Vehiculo function
+    Value: !Sub "https://${UpdateApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/vehiculos/{id}"
+  DeleteVehiculoApi:
+    Description: API Gateway endpoint URL for Delete Vehiculo function
+    Value: !Sub "https://${DeleteApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/vehiculos/{id}"
+  CreateVehiculoFunction:
+    Description: Create Vehiculo Lambda Function ARN
+    Value: !GetAtt CreateVehiculoFunction.Arn
+  GetVehiculosFunction:
+    Description: Get Vehiculos Lambda Function ARN
+    Value: !GetAtt GetVehiculosFunction.Arn
+  UpdateVehiculoFunction:
+    Description: Update Vehiculo Lambda Function ARN
+    Value: !GetAtt UpdateVehiculoFunction.Arn
+  DeleteVehiculoFunction:
+    Description: Delete Vehiculo Lambda Function ARN
+    Value: !GetAtt DeleteVehiculoFunction.Arn

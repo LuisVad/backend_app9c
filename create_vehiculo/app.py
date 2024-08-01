@@ -1,32 +1,30 @@
 import json
 import os
 import boto3
-from botocore.exceptions import ClientError
-from datetime import datetime
+from decimal import Decimal
 
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table(os.environ['TABLE_NAME'])
 
-def lambda_handler(event, context):
-    body = json.loads(event['body'])
-    item = {
-        'id': body['id'],
-        'marca': body['marca'],
-        'modelo': body['modelo'],
-        'autonomia': body['autonomia'],
-        'velocidadMaxima': body['velocidadMaxima'],
-        'dueño': body['dueño'],  # Agregado
-        'caballosDeFuerza': body['caballosDeFuerza']  # Agregado
-    }
+def decimal_to_float(d):
+    if isinstance(d, Decimal):
+        return float(d)
+    raise TypeError("Type not serializable")
 
+def lambda_handler(event, context):
     try:
-        table.put_item(Item=item)
+        response = table.scan()
+        items = response['Items']
+        
+        # Convert Decimal to float
+        items_serializable = [{k: decimal_to_float(v) if isinstance(v, Decimal) else v for k, v in item.items()} for item in items]
+
         return {
             'statusCode': 200,
-            'body': json.dumps({'message': 'Vehículo creado exitosamente'})
+            'body': json.dumps(items_serializable)
         }
-    except ClientError as e:
+    except Exception as e:
         return {
             'statusCode': 500,
-            'body': json.dumps({'error': str(e)})
+            'body': json.dumps({'error': 'Internal server error', 'details': str(e)})
         }

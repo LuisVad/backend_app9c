@@ -13,10 +13,19 @@ def lambda_handler(event, context):
         table.delete_item(Key={'id': id})
         return {
             'statusCode': 200,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',  # Permite solicitudes desde cualquier origen
+                'Access-Control-Allow-Headers': 'Content-Type',
+                'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE'
+            },
             'body': json.dumps({'message': 'Vehículo eliminado exitosamente'})
         }
     except ClientError as e:
         return {
             'statusCode': 500,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': 'Content-Type'
+            },
             'body': json.dumps({'error': str(e)})
         }

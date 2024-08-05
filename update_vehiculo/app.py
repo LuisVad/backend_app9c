@@ -10,32 +10,41 @@ def lambda_handler(event, context):
     id = event['pathParameters']['id']
     body = json.loads(event['body'])
     update_expression = """
-        SET marca = :marca,
-            modelo = :modelo,
-            autonomia = :autonomia,
-            velocidadMaxima = :velocidadMaxima,
-            dueno = :dueno,
-            caballosDeFuerza = :caballosDeFuerza
+        SET #marca = :marca,
+            #modelo = :modelo,
+            #autonomia = :autonomia,
+            #velocidadMaxima = :velocidadMaxima,
+            #dueno = :dueno,
+            #caballosDeFuerza = :caballosDeFuerza
     """
     expression_values = {
         ':marca': body['marca'],
         ':modelo': body['modelo'],
         ':autonomia': body['autonomia'],
         ':velocidadMaxima': body['velocidadMaxima'],
-        ':dueno': body['dueño'],  # Cambiado a 'dueno'
+        ':dueno': body['dueño'],  # Se usa 'dueño' en el JSON
         ':caballosDeFuerza': body['caballosDeFuerza']
+    }
+    expression_names = {
+        '#marca': 'marca',
+        '#modelo': 'modelo',
+        '#autonomia': 'autonomia',
+        '#velocidadMaxima': 'velocidadMaxima',
+        '#dueno': 'dueño',  # Se usa 'dueño' en el JSON
+        '#caballosDeFuerza': 'caballosDeFuerza'
     }
 
     try:
         table.update_item(
             Key={'id': id},
             UpdateExpression=update_expression,
-            ExpressionAttributeValues=expression_values
+            ExpressionAttributeValues=expression_values,
+            ExpressionAttributeNames=expression_names
         )
         return {
             'statusCode': 200,
             'headers': {
-                'Access-Control-Allow-Origin': '*',  # Permite solicitudes desde cualquier origen
+                'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Headers': 'Content-Type',
                 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE'
             },
